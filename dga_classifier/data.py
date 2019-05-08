@@ -110,23 +110,23 @@ def gen_malicious(num_per_dga=10000):
 
     return domains, labels
 
-def gen_data(force=False):
+def gen_data(n=10000, force=False):
     """Grab all data for train/test and save
 
     force:If true overwrite, else skip if file
           already exists
     """
     if force or (not os.path.isfile(DATA_FILE)):
-        domains, labels = gen_malicious(10000)
+        domains, labels = gen_malicious(n)
 
         # Get equal number of benign/malicious
-        domains += get_alexa(10000)
-        labels += ['benign']*10000
+        domains += get_alexa(n)
+        labels += ['benign']*n
 
         pickle.dump(zip(labels, domains), open(DATA_FILE, 'wb'))
 
-def get_data(force=False):
+def get_data(n=10000, force=False):
     """Returns data and labels"""
-    gen_data(force)
+    gen_data(n, force)
 
     return pickle.load(open(DATA_FILE, 'rb'))
