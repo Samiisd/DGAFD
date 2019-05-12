@@ -120,8 +120,8 @@ def gen_data(n=10000, force=False):
         domains, labels = gen_malicious(n)
 
         # Get equal number of benign/malicious
-        domains += get_alexa(n)
-        labels += ['benign']*n
+        #domains += get_alexa(n)
+        #labels += ['benign']*n
 
         pickle.dump(zip(labels, domains), open(DATA_FILE, 'wb'))
 
