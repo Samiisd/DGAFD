@@ -25,7 +25,7 @@ def get_alexa(num, address=ALEXA_1M, filename='top-1m.csv'):
     return [tldextract.extract(x.decode('utf-8').split(',')[1]).domain \
             for x in zipfile.read(filename).split()[:num]]
 
-def gen_malicious(num_per_dga=10000):
+def gen_malicious(len_range, num_per_dga=10000):
     """Generates num_per_dga of each DGA"""
     domains = []
     labels = []
@@ -41,7 +41,8 @@ def gen_malicious(num_per_dga=10000):
                      'passinglane', 'trafficjam', 'airport', 'runway', 'baggageclaim',
                      'passengerjet', 'delta1008', 'american765', 'united8765', 'southwest3456',
                      'albuquerque', 'sanfrancisco', 'sandiego', 'losangeles', 'newyork',
-                     'atlanta', 'portland', 'seattle', 'washingtondc']
+                     'atlanta', 'portland', 'seattle', 'washingtondc', 'google', 'apple',
+                     'bear', 'good', 'deal', 'yellow', 'green', 'battlefield']
 
     segs_size = max(1, num_per_dga//len(banjori_seeds))
     for banjori_seed in banjori_seeds:
@@ -51,6 +52,7 @@ def gen_malicious(num_per_dga=10000):
     domains += corebot.generate_domains(num_per_dga)
     labels += ['corebot']*num_per_dga
 
+#     '''
     # Create different length domains using cryptolocker
     crypto_lengths = range(8, 32)
     segs_size = max(1, num_per_dga//len(crypto_lengths))
@@ -59,17 +61,21 @@ def gen_malicious(num_per_dga=10000):
                                                  seed_num=random.randint(1, 1000000),
                                                  length=crypto_length)
         labels += ['cryptolocker']*segs_size
+#     '''
 
     domains += dircrypt.generate_domains(num_per_dga)
     labels += ['dircrypt']*num_per_dga
 
     # generate kraken and divide between configs
+#     '''
     kraken_to_gen = max(1, num_per_dga//2)
-    domains += kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'a', 3)
-    labels += ['kraken']*kraken_to_gen
-    domains += kraken.generate_domains(kraken_to_gen, datetime(2016, 1, 1), 'b', 3)
-    labels += ['kraken']*kraken_to_gen
-
+    for i in range(0, 2):
+        domains += kraken.generate_domains(kraken_to_gen, datetime(random.randint(2010, 2020),
+                                                                   random.randint(1, 12),
+                                                                   random.randint(1, 31)), chr(ord('a') + i), 3)
+        labels += ['kraken']*kraken_to_gen
+#     '''
+    
     # generate locky and divide between configs
     locky_gen = max(1, num_per_dga//11)
     for i in range(1, 12):
@@ -120,8 +126,8 @@ def gen_data(n=10000, force=False):
         domains, labels = gen_malicious(n)
 
         # Get equal number of benign/malicious
-        #domains += get_alexa(n)
-        #labels += ['benign']*n
+        domains += get_alexa(n)
+        labels += ['benign']*n
 
         pickle.dump(zip(labels, domains), open(DATA_FILE, 'wb'))
 
